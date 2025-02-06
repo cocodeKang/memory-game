@@ -1,51 +1,39 @@
-/* 기본 스타일 */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
     background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
 }
 
-/* 게임판 스타일 */
+h1 {
+    margin-top: 20px;
+    color: #333;
+}
+
+/* 게임판 */
 .game-board {
     display: grid;
-    grid-template-columns: repeat(4, minmax(80px, 1fr));
+    grid-template-columns: repeat(4, 1fr); /* 4열 구성 */
     grid-gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
+    margin: 20px auto;
     max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
-/* 카드 스타일 */
+/* 카드 */
 .card {
-    background-image: url('./card-back.png'); /* 이미지가 루트에 있을 경우 */
+    width: 80px;
+    height: 120px;
     background-size: cover;
     background-position: center;
-    background-color: transparent; /* 배경색 제거 */
+    background-image: url('./card-back.png'); /* 뒷면 이미지 */
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.5s ease;
 }
-
-
-.card.flipped {
-    background-image: none; /* 뒤집힌 상태에서는 이미지 제거 */
-    background-color: #2ecc71;
-    transform: rotateY(180deg);
-}
-
 
 /* 카드가 뒤집혔을 때 */
 .card.flipped {
-    background-color: #2ecc71;
     transform: rotateY(180deg);
-}
-
-/* 반응형 스타일 (태블릿, 모바일) */
-@media (max-width: 600px) {
-    .game-board {
-        grid-template-columns: repeat(4, minmax(70px, 1fr));
-    }
-    .card {
-        height: 80px;
-        font-size: 1.5rem;
-    }
+    background-image: none; /* 뒷면 이미지 제거 */
 }
