@@ -19,9 +19,11 @@ body {
 
 /* 카드 스타일 */
 .card {
-    width: 100%;
+    width: 100px;
     height: 100px;
-    background-color: #3498db;
+    background-image: url('그림1.png'); /* 카드 뒷면 이미지 */
+    background-size: cover; /* 이미지를 카드 크기에 맞춤 */
+    background-position: center;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -31,6 +33,13 @@ body {
     border-radius: 10px;
     transition: transform 0.5s, background-color 0.3s;
 }
+
+.card.flipped {
+    background-image: none; /* 뒤집힌 상태에서는 이미지 제거 */
+    background-color: #2ecc71;
+    transform: rotateY(180deg);
+}
+
 
 /* 카드가 뒤집혔을 때 */
 .card.flipped {
