@@ -4,89 +4,193 @@
   <meta charset="UTF-8">
   <title>메모리 게임</title>
   <style>
+    /* 기본 스타일 */
     body {
-      background-color: #f2f2f2;
-      font-family: sans-serif;
-      text-align: center;
-    }
-    h1 {
-      margin-top: 20px;
-    }
-    #game-board {
-      width: 640px;
-      margin: 20px auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-gap: 10px;
-    }
-    .card {
-      width: 100%;
-      position: relative;
-      padding-top: 100%; /* 정사각형 카드 */
-      cursor: pointer;
-      perspective: 1000px;
-    }
-    .card-inner {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      transition: transform 0.6s;
-      transform-style: preserve-3d;
-    }
-    /* 카드가 뒤집혔을 때 */
-    .card.flipped .card-inner {
-      transform: rotateY(180deg);
-    }
-    .card-face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      border: 2px solid #333;
-      border-radius: 8px;
+      margin: 0;
+      padding: 0;
+      background-color: #2c3e50;
+      font-family: Arial, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 100vh;
     }
-    /* 앞면: 이미지가 보이는 쪽 */
-    .card .front {
-      transform: rotateY(180deg);
-      background-color: #fff;
+    .memory-game {
+      width: 640px;
+      height: 640px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
     }
-    /* 뒷면: 기본 디자인 (원하는 이미지나 색상으로 변경 가능) */
-    .card .back {
-      background-color: #bbb;
-      font-size: 2em;
-      color: #333;
-    }
-    img {
-      max-width: 90%;
-      max-height: 90%;
-    }
-    #reset-button {
-      margin: 20px;
-      padding: 10px 20px;
-      font-size: 16px;
+    .memory-card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform: scale(1);
+      transform-style: preserve-3d;
+      transition: transform 0.5s;
       cursor: pointer;
+    }
+    /* 뒤집힘 상태 */
+    .memory-card.flip {
+      transform: rotateY(180deg);
+    }
+    /* 카드의 앞면과 뒷면 */
+    .memory-card .front-face,
+    .memory-card .back-face {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      border-radius: 5px;
+      backface-visibility: hidden;
+    }
+    /* 앞면: 포켓몬 이미지 */
+    .memory-card .front-face {
+      transform: rotateY(180deg);
+      object-fit: cover;
+    }
+    /* 뒷면: 카드 뒷면 디자인 (원하는 디자인으로 수정 가능) */
+    .memory-card .back-face {
+      background-color: #ecf0f1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #34495e;
     }
   </style>
 </head>
 <body>
-  <h1>메모리 게임</h1>
-  <div id="game-board"></div>
-  <button id="reset-button">게임 초기화</button>
+  <!-- 메모리 게임 카드가 들어갈 컨테이너 -->
+  <div class="memory-game" id="memoryGame">
+    <!-- 카드는 JavaScript로 생성됩니다. -->
+  </div>
+
+  <!-- 효과음을 위한 오디오 태그 (효과음 파일은 sounds 폴더에 위치) -->
+  <audio id="flipSound" src="sounds/flip.wav"></audio>
+  <audio id="matchSound" src="sounds/match.wav"></audio>
+  <audio id="mismatchSound" src="sounds/mismatch.wav"></audio>
 
   <script>
-    // 제공해주신 이미지 URL 배열
-    const images = [
-      "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/000101.png",
-      "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/000401.png",
-      "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/000601.png",
-      "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/001301.png",
-      "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/002401.png",
-      "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/003701.png",
-      "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/011101.png",
-      "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/015001.png"
-    ];
-    
-    let
+    document.addEventListener('DOMContentLoaded', () => {
+      // 제공하신 포켓몬 이미지 URL 배열
+      const images = [
+        "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/000101.png",
+        "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/000401.png",
+        "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/000601.png",
+        "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/001301.png",
+        "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/002401.png",
+        "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/003701.png",
+        "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/011101.png",
+        "https://data1.pokemonkorea.co.kr/newdata/pokedex/mid/015001.png"
+      ];
+
+      // 각 이미지를 2장씩 만들어 카드 배열 구성 (카드의 id는 0~7)
+      let cardsArray = images.concat(images).map((img, index) => {
+        return { id: index % images.length, img: img };
+      });
+
+      // 카드 배열 섞기 (간단한 셔플)
+      cardsArray.sort(() => 0.5 - Math.random());
+
+      const memoryGame = document.getElementById('memoryGame');
+
+      // 카드 엘리먼트를 생성하여 게임판에 추가
+      cardsArray.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.classList.add('memory-card');
+        cardElement.dataset.id = card.id;  // 카드 식별값
+
+        // 앞면: 포켓몬 이미지
+        const frontFace = document.createElement('img');
+        frontFace.classList.add('front-face');
+        frontFace.src = card.img;
+        frontFace.alt = "Pokemon";
+
+        // 뒷면: ? 표시 (원하는 디자인으로 수정 가능)
+        const backFace = document.createElement('div');
+        backFace.classList.add('back-face');
+        backFace.textContent = "?";
+
+        cardElement.appendChild(frontFace);
+        cardElement.appendChild(backFace);
+
+        memoryGame.appendChild(cardElement);
+
+        // 카드 클릭 이벤트 연결
+        cardElement.addEventListener('click', flipCard);
+      });
+
+      // 게임 진행을 위한 변수들
+      let hasFlippedCard = false;
+      let lockBoard = false;
+      let firstCard, secondCard;
+
+      // 효과음 엘리먼트
+      const flipSound = document.getElementById('flipSound');
+      const matchSound = document.getElementById('matchSound');
+      const mismatchSound = document.getElementById('mismatchSound');
+
+      // 카드 클릭 시 동작하는 함수
+      function flipCard() {
+        if (lockBoard) return;
+        if (this === firstCard) return;
+
+        this.classList.add('flip');
+        // 카드 뒤집기 효과음 재생
+        flipSound.currentTime = 0;
+        flipSound.play();
+
+        if (!hasFlippedCard) {
+          hasFlippedCard = true;
+          firstCard = this;
+          return;
+        }
+
+        secondCard = this;
+        lockBoard = true;
+        checkForMatch();
+      }
+
+      // 두 카드가 일치하는지 확인
+      function checkForMatch() {
+        let isMatch = firstCard.dataset.id === secondCard.dataset.id;
+
+        if (isMatch) {
+          // 일치할 경우 정답 효과음 재생
+          matchSound.currentTime = 0;
+          matchSound.play();
+          disableCards();
+        } else {
+          // 불일치할 경우 오답 효과음 재생 후 다시 뒤집기
+          mismatchSound.currentTime = 0;
+          mismatchSound.play();
+          unflipCards();
+        }
+      }
+
+      // 일치한 카드의 클릭 이벤트 제거
+      function disableCards() {
+        firstCard.removeEventListener('click', flipCard);
+        secondCard.removeEventListener('click', flipCard);
+        resetBoard();
+      }
+
+      // 카드가 일치하지 않으면 다시 뒤집음
+      function unflipCards() {
+        setTimeout(() => {
+          firstCard.classList.remove('flip');
+          secondCard.classList.remove('flip');
+          resetBoard();
+        }, 1000);
+      }
+
+      // 보드 상태 초기화
+      function resetBoard() {
+        [hasFlippedCard, lockBoard] = [false, false];
+        [firstCard, secondCard] = [null, null];
+      }
+    });
+  </script>
+</body>
+</html>
