@@ -21,7 +21,7 @@ body {
 .card {
     width: 100px;
     height: 100px;
-    background-image: url('card-back.png'); /* 카드 뒷면 이미지 */
+    background-image: url('./card-back.png'); /* 카드 뒷면 이미지 */
     background-size: cover; /* 이미지를 카드 크기에 맞춤 */
     background-position: center;
     display: flex;
