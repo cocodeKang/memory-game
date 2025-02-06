@@ -17,8 +17,8 @@ shuffledCards.forEach((emoji, index) => {
     card.classList.add("card");
     card.dataset.index = index;  // 카드의 번호 저장
     card.dataset.emoji = emoji;  // 카드의 이모지 저장
-    card.innerHTML = "❓";  // 기본 상태(뒷면)
-    card.addEventListener("click", handleCardClick);
+    
+      card.addEventListener("click", handleCardClick);
     card.addEventListener("touchstart", handleCardClick);  // 태블릿, 모바일 지원
     gameBoard.appendChild(card);
 });
